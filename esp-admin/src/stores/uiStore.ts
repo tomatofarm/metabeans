@@ -10,6 +10,8 @@ interface UIState {
   selectStore: (storeId: number | null) => void;
   selectEquipment: (equipmentId: number | null) => void;
   selectController: (controllerId: number | null) => void;
+  setSelectedStoreId: (storeId: number | null) => void;
+  setSelectedEquipmentId: (equipmentId: number | null) => void;
   clearSelection: () => void;
 }
 
@@ -41,6 +43,12 @@ export const useUIStore = create<UIState>((set) => ({
   selectController: (controllerId) =>
     set({ selectedControllerId: controllerId }),
 
+  setSelectedStoreId: (storeId) =>
+    set({ selectedStoreId: storeId }),
+
+  setSelectedEquipmentId: (equipmentId) =>
+    set({ selectedEquipmentId: equipmentId }),
+
   clearSelection: () =>
     set({
       selectedStoreId: null,
@@ -48,3 +56,6 @@ export const useUIStore = create<UIState>((set) => ({
       selectedControllerId: null,
     }),
 }));
+
+// Alias for backward compatibility
+export const useUiStore = useUIStore;

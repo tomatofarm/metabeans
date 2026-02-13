@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useAuthStore } from '@/stores/authStore';
+import LoginPage from '@/pages/auth/LoginPage';
 import type { UserRole } from '@/types/auth.types';
 
 // Lazy-loaded page placeholders (will be replaced with actual pages)
@@ -22,6 +23,15 @@ function RequireAuth() {
   return <Outlet />;
 }
 
+// Public-only guard: redirects to dashboard if already authenticated
+function PublicOnlyRoute() {
+  const { isAuthenticated } = useAuthStore();
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return <Outlet />;
+}
+
 // Role guard: only allows specified roles
 function ProtectedRoute({ allowedRoles }: { allowedRoles: UserRole[] }) {
   const { role } = useAuthStore();
@@ -31,80 +41,13 @@ function ProtectedRoute({ allowedRoles }: { allowedRoles: UserRole[] }) {
   return <Outlet />;
 }
 
-// Simple login page placeholder
-function LoginPage() {
-  const { login } = useAuthStore();
-
-  const handleDemoLogin = () => {
-    login(
-      {
-        userId: 1,
-        loginId: 'admin',
-        role: 'ADMIN',
-        name: '관리자',
-        phone: '010-1234-5678',
-        email: 'admin@metabeans.co.kr',
-        accountStatus: 'ACTIVE',
-        approvedBy: null,
-        approvedAt: null,
-        lastLoginAt: null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-      'demo-token',
-    );
-  };
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        background: '#f0f2f5',
-      }}
-    >
-      <div
-        style={{
-          width: 400,
-          padding: 40,
-          background: '#fff',
-          borderRadius: 8,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-          textAlign: 'center',
-        }}
-      >
-        <h1 style={{ marginBottom: 8 }}>MetaBeans ESP</h1>
-        <p style={{ color: '#888', marginBottom: 32 }}>관제시스템 관리툴</p>
-        <button
-          onClick={handleDemoLogin}
-          style={{
-            width: '100%',
-            padding: '12px 0',
-            fontSize: 16,
-            background: '#1677ff',
-            color: '#fff',
-            border: 'none',
-            borderRadius: 6,
-            cursor: 'pointer',
-          }}
-        >
-          데모 로그인 (ADMIN)
-        </button>
-        <p style={{ marginTop: 16, color: '#999', fontSize: 12 }}>
-          Phase 1: Mock 데이터 기반 프론트엔드
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export function AppRoutes() {
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<LoginPage />} />
+      {/* Public routes (login only when not authenticated) */}
+      <Route element={<PublicOnlyRoute />}>
+        <Route path="/login" element={<LoginPage />} />
+      </Route>
 
       {/* Protected routes */}
       <Route element={<RequireAuth />}>
@@ -152,6 +95,11 @@ export function AppRoutes() {
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Route>
       </Route>
+
+      {/* Catch-all redirect to login */}
+      <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
 }
+
+export default AppRoutes;

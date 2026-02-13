@@ -7,6 +7,7 @@ import koKR from 'antd/locale/ko_KR';
 import dayjs from 'dayjs';
 import 'dayjs/locale/ko';
 import App from './App';
+import './index.css';
 
 dayjs.locale('ko');
 
@@ -22,7 +23,15 @@ const queryClient = new QueryClient({
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ConfigProvider locale={koKR}>
+      <ConfigProvider
+        locale={koKR}
+        theme={{
+          token: {
+            colorPrimary: '#5b3cc4',
+            borderRadius: 8,
+          },
+        }}
+      >
         <BrowserRouter>
           <App />
         </BrowserRouter>

@@ -80,6 +80,14 @@ export const SERVICE_REGIONS = [
 // Business types
 export const BUSINESS_TYPES = ['튀김', '굽기', '볶음', '복합', '커피로스팅'] as const;
 
+// 역할별 메뉴 접근
+export const ROLE_MENU_MAP: Record<string, string[]> = {
+  ADMIN: ['dashboard', 'equipment', 'as-service', 'customer', 'system'],
+  DEALER: ['dashboard', 'equipment', 'as-service'],
+  HQ: ['dashboard', 'equipment', 'as-service'],
+  OWNER: ['dashboard', 'equipment', 'as-service'],
+};
+
 // User role labels
 export const ROLE_LABELS: Record<string, string> = {
   ADMIN: '시스템 관리자',
@@ -135,4 +143,12 @@ export const CTRL_STATUS_FLAGS = {
   WATER_LEVEL: 3, // Water level sensor OK
   FLO_OAC: 4,     // Damper controller OK
   LS_M100: 5,     // Inverter OK
+} as const;
+
+// Password rules
+export const PASSWORD_RULES = {
+  minLength: 8,
+  requireUppercase: true,
+  requireNumber: true,
+  requireSpecialChar: true,
 } as const;

@@ -6,6 +6,7 @@ import {
   BellOutlined,
   UserOutlined,
   LogoutOutlined,
+  LockOutlined,
   DashboardOutlined,
   ToolOutlined,
   CustomerServiceOutlined,
@@ -15,8 +16,10 @@ import {
 import type { MenuProps } from 'antd';
 import { useAuthStore } from '@/stores/authStore';
 import { useAlertStore } from '@/stores/alertStore';
+import { useLogout } from '@/api/auth.api';
 import { getAccessibleMenus, MENU_LABELS, MENU_PATHS } from '@/utils/roleHelper';
 import type { MenuKey } from '@/utils/roleHelper';
+import { RoleBadge } from './RoleBadge';
 
 const { Header: AntHeader } = Layout;
 const { Text } = Typography;
@@ -37,8 +40,9 @@ interface HeaderProps {
 export function Header({ collapsed, onToggleCollapse }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, role, logout } = useAuthStore();
+  const { user, role, logout: clearAuth } = useAuthStore();
   const { unreadCount } = useAlertStore();
+  const logoutMutation = useLogout();
 
   const menus = role ? getAccessibleMenus(role) : [];
 
@@ -54,15 +58,32 @@ export function Header({ collapsed, onToggleCollapse }: HeaderProps) {
     navigate(MENU_PATHS[key as MenuKey]);
   };
 
+  const handleLogout = () => {
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        clearAuth();
+        navigate('/login');
+      },
+    });
+  };
+
+  const handlePasswordChange = () => {
+    navigate('/password-change');
+  };
+
   const userMenuItems: MenuProps['items'] = [
+    {
+      key: 'password',
+      icon: <LockOutlined />,
+      label: '비밀번호 변경',
+      onClick: handlePasswordChange,
+    },
+    { type: 'divider' },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
       label: '로그아웃',
-      onClick: () => {
-        logout();
-        navigate('/login');
-      },
+      onClick: handleLogout,
     },
   ];
 
@@ -98,10 +119,11 @@ export function Header({ collapsed, onToggleCollapse }: HeaderProps) {
         />
       </div>
       <Space size="middle">
+        {user && <RoleBadge role={user.role} />}
         <Badge count={unreadCount} size="small">
           <BellOutlined style={{ fontSize: 18, cursor: 'pointer' }} />
         </Badge>
-        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
+        <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
           <Space style={{ cursor: 'pointer' }}>
             <UserOutlined />
             <Text>{user?.name ?? '사용자'}</Text>
@@ -111,3 +133,5 @@ export function Header({ collapsed, onToggleCollapse }: HeaderProps) {
     </AntHeader>
   );
 }
+
+export default Header;

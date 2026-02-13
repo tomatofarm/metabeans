@@ -30,3 +30,5 @@ export function AppLayout() {
     </Layout>
   );
 }
+
+export default AppLayout;
