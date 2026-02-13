@@ -9,11 +9,27 @@ import {
 } from '@ant-design/icons';
 import { useState, useMemo } from 'react';
 import { useUiStore } from '../../stores/uiStore';
+import { useAuthStore } from '../../stores/authStore';
 import type { StoreTreeNode } from '../../types/equipment.types';
 import { mockStoreTree } from '../../api/mock/common.mock';
 
 const { Sider } = Layout;
 const { Search } = Input;
+
+// storeId 문자열 → 숫자 매핑
+const STORE_ID_MAP: Record<string, number> = {
+  'store-001': 1,
+  'store-002': 2,
+  'store-003': 3,
+};
+
+function filterStoresByRole(stores: StoreTreeNode[], storeIds: string[]): StoreTreeNode[] {
+  if (storeIds.includes('*')) return stores;
+  const numericIds = storeIds
+    .map((sid) => STORE_ID_MAP[sid])
+    .filter((id): id is number => id !== undefined);
+  return stores.filter((s) => numericIds.includes(s.storeId));
+}
 
 function buildTreeData(stores: StoreTreeNode[], searchText: string): DataNode[] {
   const filtered = searchText
@@ -51,8 +67,17 @@ function buildTreeData(stores: StoreTreeNode[], searchText: string): DataNode[] 
 export default function Sidebar() {
   const [searchText, setSearchText] = useState('');
   const { sidebarCollapsed, selectStore, selectEquipment, selectController } = useUiStore();
+  const user = useAuthStore((s) => s.user);
 
-  const treeData = useMemo(() => buildTreeData(mockStoreTree, searchText), [searchText]);
+  const roleFilteredStores = useMemo(
+    () => filterStoresByRole(mockStoreTree, user?.storeIds ?? ['*']),
+    [user?.storeIds],
+  );
+
+  const treeData = useMemo(
+    () => buildTreeData(roleFilteredStores, searchText),
+    [roleFilteredStores, searchText],
+  );
 
   const handleSelect = (selectedKeys: React.Key[]) => {
     const key = selectedKeys[0]?.toString();

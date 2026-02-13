@@ -7,6 +7,11 @@ import {
   mockGetEquipmentDashboard,
   mockGetEsgSummary,
   mockGetEmergencyAlarms,
+  mockGetRoleDashboardSummary,
+  mockGetRoleIssueList,
+  mockGetRoleStoreList,
+  mockGetRoleRecentAs,
+  mockGetRoleEmergencyAlarms,
 } from './mock/dashboard.mock';
 
 export function useDashboardSummary() {
@@ -63,6 +68,48 @@ export function useEmergencyAlarms() {
   return useQuery({
     queryKey: ['dashboard', 'emergencyAlarms'],
     queryFn: () => mockGetEmergencyAlarms(),
+    staleTime: 30 * 1000,
+  });
+}
+
+// --- 역할별 대시보드 훅 ---
+
+export function useRoleDashboardSummary(storeIds: string[]) {
+  return useQuery({
+    queryKey: ['dashboard', 'roleSummary', storeIds],
+    queryFn: () => mockGetRoleDashboardSummary(storeIds),
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useRoleDashboardIssues(storeIds: string[]) {
+  return useQuery({
+    queryKey: ['dashboard', 'roleIssues', storeIds],
+    queryFn: () => mockGetRoleIssueList(storeIds),
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useRoleStoreList(storeIds: string[]) {
+  return useQuery({
+    queryKey: ['dashboard', 'roleStores', storeIds],
+    queryFn: () => mockGetRoleStoreList(storeIds),
+    staleTime: 60 * 1000,
+  });
+}
+
+export function useRoleRecentAs(storeIds: string[]) {
+  return useQuery({
+    queryKey: ['dashboard', 'roleRecentAs', storeIds],
+    queryFn: () => mockGetRoleRecentAs(storeIds),
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useRoleEmergencyAlarms(storeIds: string[]) {
+  return useQuery({
+    queryKey: ['dashboard', 'roleEmergencyAlarms', storeIds],
+    queryFn: () => mockGetRoleEmergencyAlarms(storeIds),
     staleTime: 30 * 1000,
   });
 }
