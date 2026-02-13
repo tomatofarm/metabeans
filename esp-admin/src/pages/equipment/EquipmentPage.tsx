@@ -4,6 +4,7 @@ import { useNavigate, Routes, Route, useLocation } from 'react-router-dom';
 import { useRole } from '../../hooks/useRole';
 import { useUiStore } from '../../stores/uiStore';
 import EquipmentInfoPage from './EquipmentInfoPage';
+import RealtimeMonitorPage from './RealtimeMonitorPage';
 import EquipmentRegisterPage from './EquipmentRegisterPage';
 import EquipmentEditPage from './EquipmentEditPage';
 
@@ -84,12 +85,11 @@ function EquipmentTabs() {
         onChange={handleTabChange}
         items={tabItems}
       />
-      {getActiveTab() === 'info' ? (
-        <EquipmentInfoPage />
-      ) : (
+      {getActiveTab() === 'info' && <EquipmentInfoPage />}
+      {getActiveTab() === 'monitoring' && <RealtimeMonitorPage />}
+      {getActiveTab() !== 'info' && getActiveTab() !== 'monitoring' && (
         <Card>
           <Text type="secondary">
-            {getActiveTab() === 'monitoring' && '실시간 모니터링 화면은 Phase 1 순서 6에서 구현됩니다.'}
             {getActiveTab() === 'control' && '장치 제어 화면은 Phase 1 순서 7에서 구현됩니다.'}
             {getActiveTab() === 'history' && '이력 조회 화면은 Phase 1 순서 8에서 구현됩니다.'}
           </Text>

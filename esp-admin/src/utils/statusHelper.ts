@@ -113,6 +113,55 @@ export function getPowerStatus(ppPower: number): StatusLevel {
 }
 
 /**
+ * PM2.5 먼지 제거 성능 판정 (배출부)
+ * 기본값: yellowMax=35, redMin=50
+ */
+export function getPM25Level(
+  pm25: number,
+  yellowMax = 35,
+  redMin = 50,
+): StatusLevel {
+  if (pm25 >= redMin) return 'red';
+  if (pm25 >= yellowMax) return 'yellow';
+  return 'green';
+}
+
+/**
+ * PM10 먼지 제거 성능 판정 (배출부)
+ * 기본값: yellowMax=75, redMin=80
+ */
+export function getPM10Level(
+  pm10: number,
+  yellowMax = 75,
+  redMin = 80,
+): StatusLevel {
+  if (pm10 >= redMin) return 'red';
+  if (pm10 >= yellowMax) return 'yellow';
+  return 'green';
+}
+
+/**
+ * 필터 점검 상태 판정 (차압 기준)
+ * 기본값: yellowMin=35 Pa
+ */
+export function getFilterCheckLevel(
+  diffPressure: number,
+  yellowMin = 35,
+): StatusLevel {
+  if (diffPressure >= yellowMin) return 'yellow';
+  return 'green';
+}
+
+/**
+ * 통신 연결 상태 판정 (epoch 타임스탬프 기반, 30초 미수신 시 OFFLINE)
+ */
+export function getConnectionStatusFromEpoch(lastTimestamp: number): StatusLevel {
+  const elapsed = (Date.now() / 1000) - lastTimestamp;
+  if (elapsed > COMM_TIMEOUT_SEC) return 'red';
+  return 'green';
+}
+
+/**
  * 필터 점검 상태 메시지
  */
 export const FILTER_CHECK_MESSAGE =
