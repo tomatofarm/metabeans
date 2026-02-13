@@ -1,14 +1,14 @@
-import { Layout, Menu, Space, Button, Badge, Dropdown } from 'antd';
+import { Layout, Menu, Space, Button, Dropdown } from 'antd';
 import {
-  BellOutlined,
   LogoutOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
-import { useAlertStore } from '../../stores/alertStore';
+import { useUiStore } from '../../stores/uiStore';
 import { getAccessibleMenus, MENU_ITEMS } from '../../utils/roleHelper';
 import RoleBadge from './RoleBadge';
+import EmergencyAlarmPanel from '../../pages/dashboard/components/EmergencyAlarmPanel';
 
 const { Header: AntHeader } = Layout;
 
@@ -16,7 +16,7 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuthStore();
-  const unreadCount = useAlertStore((s) => s.unreadCount);
+  const selectEquipment = useUiStore((s) => s.selectEquipment);
 
   const role = user?.role;
   const accessibleMenus = role ? getAccessibleMenus(role) : [];
@@ -39,6 +39,11 @@ export default function Header() {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleAlarmClick = (equipmentId: number) => {
+    selectEquipment(equipmentId);
+    navigate('/dashboard');
   };
 
   const userMenuItems = [
@@ -91,9 +96,7 @@ export default function Header() {
       </div>
 
       <Space size="middle">
-        <Badge count={unreadCount} size="small">
-          <Button type="text" icon={<BellOutlined />} />
-        </Badge>
+        <EmergencyAlarmPanel onAlarmClick={handleAlarmClick} />
         <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
           <Button type="text" icon={<UserOutlined />}>
             {user?.name}
