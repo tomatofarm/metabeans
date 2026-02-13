@@ -73,3 +73,83 @@ export interface ASReportAttachment {
   fileName: string;
   uploadedAt: string;
 }
+
+// A/S 고장 유형 (API faultType) — UI 신청 폼에서 사용
+export type FaultType = 'POWER' | 'SPARK' | 'TEMPERATURE' | 'COMM_ERROR' | 'NOISE' | 'OTHER';
+
+// A/S 긴급도
+export type Urgency = 'HIGH' | 'NORMAL';
+
+// 알림 심각도
+export type AlertSeverity = 'WARNING' | 'CRITICAL';
+
+// 알림 유형
+export type AlertType =
+  | 'COMM_ERROR'
+  | 'INLET_TEMP'
+  | 'FILTER_CHECK'
+  | 'DUST_REMOVAL'
+  | 'SPARK';
+
+// A/S 알림 현황 항목
+export interface ASAlert {
+  alertId: number;
+  storeId: number;
+  storeName: string;
+  equipmentId: number;
+  equipmentName: string;
+  controllerId?: number;
+  controllerName?: string;
+  alertType: AlertType;
+  severity: AlertSeverity;
+  message: string;
+  currentValue?: number;
+  unit?: string;
+  isResolved: boolean;
+  createdAt: string;
+}
+
+// A/S 요청 목록 항목 (API 응답)
+export interface ASRequestListItem {
+  requestId: number;
+  storeId: number;
+  storeName: string;
+  equipmentId?: number;
+  equipmentName?: string;
+  urgency: Urgency;
+  faultType: FaultType;
+  description: string;
+  status: ASStatus;
+  dealerId?: number;
+  dealerName?: string;
+  preferredVisitDatetime?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// A/S 신청 요청 (API 요청 body)
+export interface ASCreateRequest {
+  storeId: number;
+  equipmentId?: number;
+  faultType: FaultType;
+  description: string;
+  preferredVisitDatetime?: string;
+  urgency: Urgency;
+  contactName: string;
+  contactPhone: string;
+}
+
+// A/S 신청 응답
+export interface ASCreateResponse {
+  requestId: number;
+  status: ASStatus;
+  assignedDealerId?: number;
+  assignedDealerName?: string;
+  message: string;
+}
+
+// 매장별 장비 옵션 (A/S 신청 폼)
+export interface EquipmentOption {
+  equipmentId: number;
+  equipmentName: string;
+}
