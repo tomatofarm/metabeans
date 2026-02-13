@@ -30,19 +30,41 @@ function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
   return <Outlet />;
 }
 
+function DashboardRedirect() {
+  const user = useAuthStore((s) => s.user);
+  if (!user) return <Navigate to="/login" replace />;
+
+  const rolePathMap: Record<UserRole, string> = {
+    ADMIN: '/dashboard/admin',
+    DEALER: '/dashboard/dealer',
+    HQ: '/dashboard/hq',
+    OWNER: '/dashboard/owner',
+  };
+
+  return <Navigate to={rolePathMap[user.role]} replace />;
+}
+
 export default function AppRoutes() {
   return (
     <Routes>
       {/* Public routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/change-password" element={<ChangePasswordPage />} />
       <Route path="/register/*" element={<RegisterPage />} />
+
+      {/* Change password - requires auth */}
+      <Route path="/change-password" element={<ChangePasswordPage />} />
 
       {/* Protected routes - all authenticated users */}
       <Route element={<ProtectedRoute />}>
         <Route element={<AppLayout />}>
-          <Route path="/dashboard" element={<DashboardPage />} />
+          {/* Dashboard with role-based sub-routes */}
+          <Route path="/dashboard" element={<DashboardRedirect />} />
+          <Route path="/dashboard/admin" element={<DashboardPage />} />
+          <Route path="/dashboard/dealer" element={<DashboardPage />} />
+          <Route path="/dashboard/hq" element={<DashboardPage />} />
+          <Route path="/dashboard/owner" element={<DashboardPage />} />
+
           <Route path="/equipment/*" element={<EquipmentPage />} />
           <Route path="/as-service/*" element={<ASServicePage />} />
 
