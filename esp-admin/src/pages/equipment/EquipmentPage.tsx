@@ -1,4 +1,4 @@
-import { Tabs, Button, Typography, Card } from 'antd';
+import { Tabs, Button, Typography } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
 import { useNavigate, Routes, Route, useLocation } from 'react-router-dom';
 import { useRole } from '../../hooks/useRole';
@@ -6,10 +6,11 @@ import { useUiStore } from '../../stores/uiStore';
 import EquipmentInfoPage from './EquipmentInfoPage';
 import RealtimeMonitorPage from './RealtimeMonitorPage';
 import DeviceControlPage from './DeviceControlPage';
+import HistoryPage from './HistoryPage';
 import EquipmentRegisterPage from './EquipmentRegisterPage';
 import EquipmentEditPage from './EquipmentEditPage';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 function EquipmentTabs() {
   const navigate = useNavigate();
@@ -89,13 +90,7 @@ function EquipmentTabs() {
       {getActiveTab() === 'info' && <EquipmentInfoPage />}
       {getActiveTab() === 'monitoring' && <RealtimeMonitorPage />}
       {getActiveTab() === 'control' && <DeviceControlPage />}
-      {getActiveTab() === 'history' && (
-        <Card>
-          <Text type="secondary">
-            이력 조회 화면은 Phase 1 순서 8에서 구현됩니다.
-          </Text>
-        </Card>
-      )}
+      {getActiveTab() === 'history' && <HistoryPage />}
     </div>
   );
 }
