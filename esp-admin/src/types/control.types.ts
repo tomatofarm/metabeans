@@ -114,3 +114,60 @@ export const DAMPER_STEPS = [
   { step: 6, opening: 90, value: 90 },
   { step: 7, opening: 100, value: 100 },
 ] as const;
+
+// 제어 명령 요청 (프론트→API)
+export interface SendControlRequest {
+  target: ControlTarget;
+  action: number;
+  value?: number;
+  equipmentId: string;   // MQTT equipment_id ("all" for batch)
+  controllerId: string;  // MQTT controller_id ("all" for batch)
+}
+
+// 제어 명령 응답 (ACK 포함)
+export interface SendControlResponse {
+  cmdId: string;
+  result: ControlResult;
+  failReason?: string;
+}
+
+// 팬 자동제어 설정 (조회/수정용)
+export interface FanAutoSettings {
+  equipmentId: number;
+  fanControlMode: ControlMode;
+  targetVelocity?: number;
+  damperControlMode: ControlMode;
+  targetFlow?: number;
+  updatedAt: string;
+}
+
+// 제어 대상 라벨
+export const CONTROL_TARGET_LABELS: Record<ControlTarget, string> = {
+  0: '파워팩',
+  1: '댐퍼',
+  2: '시로코팬',
+};
+
+// 파워팩 액션 라벨
+export const POWERPACK_ACTION_LABELS: Record<number, string> = {
+  0: '전원 OFF',
+  1: '전원 ON',
+  2: '리셋',
+};
+
+// 댐퍼 액션 라벨
+export const DAMPER_ACTION_LABELS: Record<number, string> = {
+  1: '개도율 설정',
+  2: '모드 전환',
+  3: '목표 풍량 설정',
+};
+
+// 팬 액션 라벨
+export const FAN_ACTION_LABELS: Record<number, string> = {
+  0: '팬 OFF',
+  1: '팬 LOW',
+  2: '팬 MID',
+  3: '팬 HIGH',
+  4: '모드 전환',
+  5: '목표 풍속 설정',
+};
