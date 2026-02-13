@@ -74,9 +74,33 @@ export interface LoginRequest {
   password: string;
 }
 
+// 로그인 응답용 사용자 정보 (JWT payload + 프로필)
+export interface LoginUser {
+  userId: number;
+  loginId: string;
+  role: UserRole;
+  name: string;
+  phone: string;
+  email?: string;
+  storeIds: string[];
+}
+
 export interface LoginResponse {
   accessToken: string;
-  user: User;
+  user: LoginUser;
+}
+
+// 비밀번호 초기화 요청
+export interface PasswordResetRequest {
+  loginId: string;
+  name: string;
+  email: string;
+}
+
+// 비밀번호 변경 요청
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
 }
 
 // 회원가입 요청 (역할별)

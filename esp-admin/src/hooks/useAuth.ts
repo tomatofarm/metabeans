@@ -11,6 +11,7 @@ export function useAuth() {
     user,
     accessToken,
     role: user?.role ?? null,
+    storeIds: user?.storeIds ?? [],
     login,
     logout,
   };

@@ -1,8 +1,8 @@
 import type { StoreTreeNode } from '../../types/equipment.types';
-import type { User } from '../../types/auth.types';
+import type { LoginUser } from '../../types/auth.types';
 
 // Mock 사용자 데이터 (역할별)
-export const mockUsers: Record<string, { user: User; password: string }> = {
+export const mockUsers: Record<string, { user: LoginUser; password: string }> = {
   admin: {
     user: {
       userId: 1,
@@ -11,9 +11,7 @@ export const mockUsers: Record<string, { user: User; password: string }> = {
       name: '관리자',
       phone: '010-1234-5678',
       email: 'admin@metabeans.co.kr',
-      accountStatus: 'ACTIVE',
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
+      storeIds: ['*'],
     },
     password: 'admin123',
   },
@@ -25,9 +23,7 @@ export const mockUsers: Record<string, { user: User; password: string }> = {
       name: '김대리',
       phone: '010-2345-6789',
       email: 'dealer@metabeans.co.kr',
-      accountStatus: 'ACTIVE',
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
+      storeIds: ['store-001', 'store-002'],
     },
     password: 'dealer123',
   },
@@ -39,9 +35,7 @@ export const mockUsers: Record<string, { user: User; password: string }> = {
       name: '박본사',
       phone: '010-3456-7890',
       email: 'hq@metabeans.co.kr',
-      accountStatus: 'ACTIVE',
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
+      storeIds: ['store-001', 'store-003'],
     },
     password: 'hq123',
   },
@@ -53,9 +47,7 @@ export const mockUsers: Record<string, { user: User; password: string }> = {
       name: '이점주',
       phone: '010-4567-8901',
       email: 'owner@metabeans.co.kr',
-      accountStatus: 'ACTIVE',
-      createdAt: '2026-01-01T00:00:00Z',
-      updatedAt: '2026-01-01T00:00:00Z',
+      storeIds: ['store-001'],
     },
     password: 'owner123',
   },
