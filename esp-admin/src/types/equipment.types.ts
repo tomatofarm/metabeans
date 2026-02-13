@@ -87,6 +87,115 @@ export interface ConsumableSchedule {
   createdAt: string;
 }
 
+// --- API 응답 타입 ---
+
+// 장비 목록 아이템 (GET /equipment 응답)
+export interface EquipmentListItem {
+  equipmentId: number;
+  equipmentSerial: string;
+  mqttEquipmentId: string;
+  storeName: string;
+  floorName: string;
+  equipmentName: string;
+  modelName: string;
+  cellType?: string;
+  powerpackCount: number;
+  purchaseDate?: string;
+  warrantyEndDate?: string;
+  dealerName?: string;
+  status: EquipmentStatus;
+  connectionStatus: ConnectionStatus;
+  lastSeenAt?: string;
+}
+
+// 장비 상세 (GET /equipment/:id 응답)
+export interface EquipmentDetail {
+  equipmentId: number;
+  equipmentSerial: string;
+  mqttEquipmentId: string;
+  store: { storeId: number; storeName: string; siteId: string };
+  floor: { floorId: number; floorCode: string; floorName: string };
+  equipmentName: string;
+  model: { modelId: number; modelName: string; manufacturer: string };
+  cellType?: string;
+  powerpackCount: number;
+  purchaseDate?: string;
+  warrantyEndDate?: string;
+  dealer?: { dealerId: number; dealerName: string };
+  status: EquipmentStatus;
+  connectionStatus: ConnectionStatus;
+  lastSeenAt?: string;
+  gateway: {
+    gatewayId: number;
+    gwDeviceId: string;
+    connectionStatus: ConnectionStatus;
+    statusFlags: number;
+    controllerCount: number;
+  };
+  controllers: {
+    controllerId: number;
+    ctrlDeviceId: string;
+    connectionStatus: ConnectionStatus;
+    statusFlags: number;
+    lastSeenAt?: string;
+  }[];
+  registeredBy: { userId: number; name: string };
+  createdAt: string;
+  updatedAt: string;
+}
+
+// 장비 등록 요청 (POST /equipment)
+export interface EquipmentCreateRequest {
+  equipmentSerial: string;
+  mqttEquipmentId: string;
+  storeId: number;
+  floorId: number;
+  equipmentName: string;
+  modelId: number;
+  cellType?: string;
+  powerpackCount: number;
+  purchaseDate?: string;
+  warrantyEndDate?: string;
+  dealerId?: number;
+  controllers: { ctrlDeviceId: string; gatewayId: number }[];
+}
+
+// 장비 수정 요청 (PUT /equipment/:id)
+export interface EquipmentUpdateRequest {
+  equipmentName?: string;
+  modelId?: number;
+  cellType?: string;
+  dealerId?: number;
+  controllers?: { ctrlDeviceId: string; gatewayId: number }[];
+}
+
+// 매장 드롭다운용 (등록 폼에서 사용)
+export interface StoreOption {
+  storeId: number;
+  storeName: string;
+  siteId: string;
+}
+
+// 층 드롭다운용
+export interface FloorOption {
+  floorId: number;
+  floorCode: string;
+  floorName?: string;
+}
+
+// 게이트웨이 드롭다운용
+export interface GatewayOption {
+  gatewayId: number;
+  gwDeviceId: string;
+  connectionStatus: ConnectionStatus;
+}
+
+// 대리점 드롭다운용
+export interface DealerOption {
+  dealerId: number;
+  dealerName: string;
+}
+
 // 사이드바 트리 구조를 위한 계층형 타입
 export interface StoreTreeNode {
   storeId: number;
