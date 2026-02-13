@@ -103,32 +103,111 @@ export interface ChangePasswordRequest {
   newPassword: string;
 }
 
-// 회원가입 요청 (역할별)
-export interface RegisterBaseRequest {
+// 회원가입 공통 계정 정보
+export interface RegisterAccountInfo {
   loginId: string;
   password: string;
   name: string;
   phone: string;
-  email?: string;
+  email: string;
+}
+
+// 사업자 정보 (Owner, HQ, Dealer 공통)
+export interface RegisterBusinessInfo {
   businessName: string;
   businessNumber: string;
+}
+
+// 매장점주 매장 정보
+export interface RegisterStoreInfo {
+  storeName: string;
   address: string;
-  businessCertFile?: File;
+  addressDetail?: string;
+  phone?: string;
+  businessType: string;
+  floorCount: number;
 }
 
-export interface RegisterOwnerRequest extends RegisterBaseRequest {
-  storeId?: number;
+// 매장점주 회원가입 요청
+export interface RegisterOwnerRequest {
+  account: RegisterAccountInfo;
+  business: RegisterBusinessInfo;
+  store: RegisterStoreInfo;
+  dealerId: number;
+  termsAgreed: boolean;
+  marketingAgreed: boolean;
 }
 
-export interface RegisterHQRequest extends RegisterBaseRequest {
-  brandName: string;
-  hqName: string;
-  businessType?: string;
+// 매장본사 회원가입 요청
+export interface RegisterHQRequest {
+  account: RegisterAccountInfo;
+  business: {
+    corporationName: string;
+    businessNumber: string;
+    representativeName: string;
+  };
+  hqInfo: {
+    address: string;
+    addressDetail?: string;
+    phone?: string;
+    businessType: string;
+  };
+  dealerId?: number;
+  termsAgreed: boolean;
+  marketingAgreed: boolean;
 }
 
-export interface RegisterAdminRequest extends RegisterBaseRequest {}
+// 본사직원 회원가입 요청
+export interface RegisterAdminRequest {
+  loginId: string;
+  password: string;
+  name: string;
+  employeeId: string;
+  email: string;
+  department: string;
+  termsAgreed: boolean;
+  marketingAgreed: boolean;
+}
 
-export interface RegisterDealerRequest extends RegisterBaseRequest {
+// 대리점 회원가입 요청
+export interface RegisterDealerRequest {
+  account: RegisterAccountInfo;
+  business: RegisterBusinessInfo;
+  location: {
+    address: string;
+    addressDetail?: string;
+  };
   serviceRegions: string[];
-  specialties: DealerSpecialties;
+  termsAgreed: boolean;
+  marketingAgreed: boolean;
 }
+
+// 회원가입 응답
+export interface RegisterResponse {
+  userId: number;
+  accountStatus: AccountStatus;
+  message: string;
+}
+
+// 대리점 목록 (회원가입 시 선택용)
+export interface DealerListItem {
+  dealerId: number;
+  dealerName: string;
+  serviceRegions: string[];
+}
+
+// 업종 목록
+export const BUSINESS_TYPES = [
+  '한식',
+  '중식',
+  '일식',
+  '양식',
+  '분식',
+  '카페',
+  '커피로스팅',
+  '패스트푸드',
+  '뷔페',
+  '기타',
+] as const;
+
+export type BusinessType = (typeof BUSINESS_TYPES)[number];
