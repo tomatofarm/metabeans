@@ -75,6 +75,37 @@ export interface EquipmentHistory {
   occurredAt: string;
 }
 
+// 장비 변경 이력 (이력 조회 > 장비 변경 이력 탭)
+export interface EquipmentChangeHistory {
+  changeId: number;
+  equipmentId: number;
+  changedField: string;
+  oldValue: string;
+  newValue: string;
+  changedBy: string;
+  changedAt: string;
+}
+
+// 알람 이벤트 (alarm_events 테이블)
+export type AlarmType = 'COMM_ERROR' | 'INLET_TEMP' | 'FILTER_CHECK' | 'DUST_PERFORMANCE' | 'SPARK' | 'OVER_TEMP';
+export type AlarmSeverity = 'YELLOW' | 'RED';
+
+export interface AlarmEvent {
+  alarmId: number;
+  storeId: number;
+  storeName: string;
+  equipmentId: number;
+  equipmentName: string;
+  controllerId?: number;
+  controllerName?: string;
+  alarmType: AlarmType;
+  severity: AlarmSeverity;
+  value?: number;
+  message: string;
+  occurredAt: string;
+  resolvedAt?: string;
+}
+
 // 소모품 교체 주기 (consumable_schedules 테이블)
 export interface ConsumableSchedule {
   scheduleId: number;
