@@ -5,6 +5,7 @@ import { useRole } from '../../hooks/useRole';
 import { useUiStore } from '../../stores/uiStore';
 import EquipmentInfoPage from './EquipmentInfoPage';
 import RealtimeMonitorPage from './RealtimeMonitorPage';
+import DeviceControlPage from './DeviceControlPage';
 import EquipmentRegisterPage from './EquipmentRegisterPage';
 import EquipmentEditPage from './EquipmentEditPage';
 
@@ -87,11 +88,11 @@ function EquipmentTabs() {
       />
       {getActiveTab() === 'info' && <EquipmentInfoPage />}
       {getActiveTab() === 'monitoring' && <RealtimeMonitorPage />}
-      {getActiveTab() !== 'info' && getActiveTab() !== 'monitoring' && (
+      {getActiveTab() === 'control' && <DeviceControlPage />}
+      {getActiveTab() === 'history' && (
         <Card>
           <Text type="secondary">
-            {getActiveTab() === 'control' && '장치 제어 화면은 Phase 1 순서 7에서 구현됩니다.'}
-            {getActiveTab() === 'history' && '이력 조회 화면은 Phase 1 순서 8에서 구현됩니다.'}
+            이력 조회 화면은 Phase 1 순서 8에서 구현됩니다.
           </Text>
         </Card>
       )}
