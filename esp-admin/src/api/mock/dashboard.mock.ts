@@ -602,6 +602,112 @@ export async function mockGetEsgSummary(): Promise<EsgSummary> {
   return mockDelay(data, 200);
 }
 
+// --- 역할별 대시보드 Mock ---
+
+// storeId 문자열 → 숫자 매핑
+const STORE_ID_MAP: Record<string, number> = {
+  'store-001': 1,
+  'store-002': 2,
+  'store-003': 3,
+};
+
+function resolveStoreIds(storeIds: string[]): number[] {
+  if (storeIds.includes('*')) return [1, 2, 3];
+  return storeIds.map((sid) => STORE_ID_MAP[sid]).filter((id): id is number => id !== undefined);
+}
+
+// 역할별 대시보드 요약
+export interface RoleDashboardSummary {
+  totalStores: number;
+  totalEquipments: number;
+  normalEquipments: number;
+  pendingAsRequests: number;
+  emergencyAlarms: number;
+}
+
+export async function mockGetRoleDashboardSummary(storeIds: string[]): Promise<RoleDashboardSummary> {
+  const resolved = resolveStoreIds(storeIds);
+  const storeMap = await mockGetStoreMapData();
+  const filteredStores = storeMap.filter((s) => resolved.includes(s.storeId));
+  const totalEquipments = filteredStores.reduce((sum, s) => sum + s.equipmentCount, 0);
+  const issues = await mockGetIssueList();
+  const allItems = issues.flatMap((c) => c.items).filter((i) => resolved.includes(i.storeId));
+  const redAlarms = allItems.filter((i) => i.severity === 'red');
+  const pendingAs = filteredStores.length > 0 ? Math.min(filteredStores.length, 2) : 0;
+
+  const data: RoleDashboardSummary = {
+    totalStores: filteredStores.length,
+    totalEquipments,
+    normalEquipments: Math.max(0, totalEquipments - allItems.length),
+    pendingAsRequests: pendingAs,
+    emergencyAlarms: redAlarms.length,
+  };
+  return mockDelay(data, 300);
+}
+
+// 역할별 이슈 목록 (storeIds 필터)
+export async function mockGetRoleIssueList(storeIds: string[]): Promise<DashboardIssueCategory[]> {
+  const resolved = resolveStoreIds(storeIds);
+  const allCategories = await mockGetIssueList();
+
+  return allCategories.map((cat) => {
+    const filteredItems = cat.items.filter((i) => resolved.includes(i.storeId));
+    return {
+      ...cat,
+      items: filteredItems,
+      yellowCount: filteredItems.filter((i) => i.severity === 'yellow').length,
+      redCount: filteredItems.filter((i) => i.severity === 'red').length,
+    };
+  });
+}
+
+// 역할별 매장 목록
+export async function mockGetRoleStoreList(storeIds: string[]): Promise<StoreMapItem[]> {
+  const resolved = resolveStoreIds(storeIds);
+  const allStores = await mockGetStoreMapData();
+  return allStores.filter((s) => resolved.includes(s.storeId));
+}
+
+// 역할별 최근 A/S 목록
+export interface RoleAsRequest {
+  requestId: number;
+  storeName: string;
+  equipmentName: string;
+  issueType: string;
+  status: string;
+  createdAt: string;
+  description: string;
+}
+
+export async function mockGetRoleRecentAs(storeIds: string[]): Promise<RoleAsRequest[]> {
+  const resolved = resolveStoreIds(storeIds);
+  const requests: RoleAsRequest[] = [];
+
+  for (const sid of resolved) {
+    const store = await mockGetStoreDashboard(sid);
+    for (const req of store.recentAsRequests) {
+      requests.push({
+        requestId: req.requestId,
+        storeName: store.storeName,
+        equipmentName: req.equipmentName ?? '장비 미지정',
+        issueType: req.issueType,
+        status: req.status,
+        createdAt: req.createdAt,
+        description: req.description,
+      });
+    }
+  }
+
+  return mockDelay(requests, 300);
+}
+
+// 역할별 긴급 알람 (storeIds 필터)
+export async function mockGetRoleEmergencyAlarms(storeIds: string[]): Promise<EmergencyAlarm[]> {
+  const resolved = resolveStoreIds(storeIds);
+  const allAlarms = await mockGetEmergencyAlarms();
+  return allAlarms.filter((a) => resolved.includes(a.storeId));
+}
+
 // 7. 긴급 알람 목록 (Red만)
 export async function mockGetEmergencyAlarms(): Promise<EmergencyAlarm[]> {
   const now = dayjs();
