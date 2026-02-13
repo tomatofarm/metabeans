@@ -108,6 +108,41 @@ export interface SensorDiscreteRange {
   values: number[];
 }
 
+// 실시간 모니터링용 컨트롤러 상태
+export interface RealtimeControllerData {
+  controllerId: number;
+  controllerName: string;
+  connectionStatus: 'ONLINE' | 'OFFLINE';
+  lastSeenAt: string;
+  sensorData: ControllerSensorData;
+}
+
+// 실시간 모니터링 장비 데이터 (equipment 단위)
+export interface RealtimeMonitoringData {
+  equipmentId: number;
+  equipmentName: string;
+  modelName: string;
+  storeName: string;
+  connectionStatus: 'ONLINE' | 'OFFLINE';
+  controllers: RealtimeControllerData[];
+}
+
+// 센서 이력 차트 데이터 포인트 (확장)
+export interface SensorHistoryDataPoint {
+  timestamp: number;
+  controllerId: string;
+  controllerName: string;
+  ppTemp: number;
+  ppSpark: number;
+  pm25: number;
+  pm10: number;
+  diffPressure: number;
+  inletTemp: number;
+  flow: number;
+  velocity: number;
+  ductDp: number;
+}
+
 // IAQ 상태 판단 기준
 export type IAQLevel = 'good' | 'moderate' | 'bad';
 

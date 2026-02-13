@@ -1,14 +1,53 @@
+import { useMemo } from 'react';
 import { Card } from 'antd';
+import type { SensorHistoryDataPoint } from '../../types/sensor.types';
+import TimeSeriesChart from './TimeSeriesChart';
+import type { TimeSeriesLine } from './TimeSeriesChart';
 
-/**
- * 보드온도 라인차트 (스켈레톤 - 상세 구현은 모니터링 화면에서)
- */
-export default function BoardTempChart() {
+const CONTROLLER_COLORS = ['#1890ff', '#52c41a', '#fa8c16', '#722ed1'];
+
+interface BoardTempChartProps {
+  historyData: SensorHistoryDataPoint[];
+  height?: number;
+}
+
+export default function BoardTempChart({ historyData, height = 300 }: BoardTempChartProps) {
+  const lines: TimeSeriesLine[] = useMemo(() => {
+    const grouped = new Map<string, { timestamp: number; value: number }[]>();
+    for (const point of historyData) {
+      const key = point.controllerName;
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key)!.push({ timestamp: point.timestamp, value: point.ppTemp });
+    }
+    return Array.from(grouped.entries()).map(([name, data], idx) => ({
+      name,
+      data,
+      color: CONTROLLER_COLORS[idx % CONTROLLER_COLORS.length],
+    }));
+  }, [historyData]);
+
+  if (!historyData.length) {
+    return (
+      <Card title="보드 온도 추이" size="small">
+        <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
+          데이터 없음
+        </div>
+      </Card>
+    );
+  }
+
   return (
-    <Card title="보드 온도 추이" size="small">
-      <div style={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
-        차트 영역 (ECharts)
-      </div>
+    <Card size="small" style={{ marginBottom: 16 }}>
+      <TimeSeriesChart
+        title="보드 온도 추이"
+        lines={lines}
+        yAxisName="°C"
+        height={height}
+        warningZones={[
+          { min: 60, max: 80, color: 'rgba(250,173,20,0.08)' },
+          { min: 80, max: 120, color: 'rgba(255,77,79,0.08)' },
+        ]}
+      />
     </Card>
   );
 }
