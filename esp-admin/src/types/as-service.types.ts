@@ -1,7 +1,7 @@
 // A/S 고장 유형
 export type IssueType = 'MALFUNCTION' | 'CLEANING' | 'REPLACEMENT' | 'INSPECTION' | 'OTHER';
 
-// A/S 처리 상태 (7단계)
+// A/S 처리 상태 (7단계 + 보고서 + 완료)
 export type ASStatus =
   | 'PENDING'
   | 'ACCEPTED'
@@ -9,6 +9,8 @@ export type ASStatus =
   | 'VISIT_SCHEDULED'
   | 'IN_PROGRESS'
   | 'COMPLETED'
+  | 'REPORT_SUBMITTED'
+  | 'CLOSED'
   | 'CANCELLED';
 
 // 수리 유형
@@ -152,4 +154,55 @@ export interface ASCreateResponse {
 export interface EquipmentOption {
   equipmentId: number;
   equipmentName: string;
+}
+
+// A/S 상세 조회 응답
+export interface ASDetail {
+  requestId: number;
+  store: { storeId: number; storeName: string };
+  equipment: { equipmentId: number; equipmentName: string };
+  urgency: Urgency;
+  faultType: FaultType;
+  description: string;
+  preferredVisitDatetime?: string;
+  visitScheduledDatetime?: string;
+  contactName: string;
+  contactPhone: string;
+  status: ASStatus;
+  assignedDealer?: { dealerId: number; dealerName: string };
+  attachments: ASAttachment[];
+  report?: ASReport & { attachments: ASReportAttachment[] };
+  memo?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// A/S 상태 변경 요청
+export interface ASStatusUpdateRequest {
+  status: ASStatus;
+  memo?: string;
+  visitScheduledDatetime?: string;
+  dealerId?: number;
+}
+
+// A/S 보고서 작성 요청
+export interface ASReportCreateRequest {
+  visitDate: string;
+  repairType: RepairType;
+  repairDescription: string;
+  result: 'COMPLETED' | 'PARTIAL' | 'REVISIT_NEEDED';
+  partsUsed: PartUsed[];
+  totalPartsCost: number;
+  laborCost?: number;
+  totalCost?: number;
+  remarks?: string;
+}
+
+// 처리 결과 유형
+export type ASRepairResult = 'COMPLETED' | 'PARTIAL' | 'REVISIT_NEEDED';
+
+// 대리점 옵션
+export interface DealerOption {
+  dealerId: number;
+  dealerName: string;
 }

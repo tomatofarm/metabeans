@@ -66,7 +66,22 @@ export const AS_STATUS_LABELS: Record<string, string> = {
   VISIT_SCHEDULED: '방문예정',
   IN_PROGRESS: '처리중',
   COMPLETED: '처리완료',
+  REPORT_SUBMITTED: '보고서제출',
+  CLOSED: '종결',
   CANCELLED: '취소',
+};
+
+// A/S 상태별 색상 (Ant Design Tag color)
+export const AS_STATUS_COLORS: Record<string, string> = {
+  PENDING: 'default',
+  ACCEPTED: 'blue',
+  ASSIGNED: 'gold',
+  VISIT_SCHEDULED: 'cyan',
+  IN_PROGRESS: 'orange',
+  COMPLETED: 'green',
+  REPORT_SUBMITTED: 'purple',
+  CLOSED: 'default',
+  CANCELLED: 'default',
 };
 
 // 서비스 가능 지역
