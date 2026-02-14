@@ -1,14 +1,13 @@
-import { Typography, Card } from 'antd';
+import { Typography } from 'antd';
+import CustomerListPage from './CustomerListPage';
 
 export default function CustomerPage() {
   return (
-    <div>
-      <Typography.Title level={4}>고객 현황</Typography.Title>
-      <Card>
-        <Typography.Text type="secondary">
-          고객 목록, 지도, 편집 화면은 Phase 1 순서 11에서 구현됩니다.
-        </Typography.Text>
-      </Card>
+    <div style={{ padding: '0 0 24px' }}>
+      <Typography.Title level={4} style={{ marginBottom: 16 }}>
+        고객 현황
+      </Typography.Title>
+      <CustomerListPage />
     </div>
   );
 }
