@@ -10,6 +10,13 @@ import type {
   FaultType,
   Urgency,
   EquipmentOption,
+  ASDetail,
+  ASReport,
+  ASReportAttachment,
+  ASReportCreateRequest,
+  ASStatusUpdateRequest,
+  DealerOption,
+  RepairType,
 } from '../../types/as-service.types';
 import { mockDelay, wrapResponse, type ApiResponse } from './common.mock';
 import { FILTER_CHECK_MESSAGE } from '../../utils/statusHelper';
@@ -238,6 +245,38 @@ const mockASRequests: ASRequestListItem[] = [
     createdAt: now.subtract(10, 'day').toISOString(),
     updatedAt: now.subtract(8, 'day').toISOString(),
   },
+  {
+    requestId: 9007,
+    storeId: 3,
+    storeName: '신촌점 (커피로스팅)',
+    equipmentId: 5,
+    equipmentName: 'ESP 집진기 #1',
+    urgency: 'HIGH',
+    faultType: 'TEMPERATURE',
+    description: '유입 온도가 비정상적으로 높아 즉시 점검이 필요합니다.',
+    status: 'REPORT_SUBMITTED',
+    dealerId: 1,
+    dealerName: '서울환경테크',
+    preferredVisitDatetime: '2026-02-08T09:00:00Z',
+    createdAt: now.subtract(8, 'day').toISOString(),
+    updatedAt: now.subtract(3, 'day').toISOString(),
+  },
+  {
+    requestId: 9008,
+    storeId: 2,
+    storeName: '홍대점 (굽기)',
+    equipmentId: 3,
+    equipmentName: 'ESP 집진기 #1 (1F)',
+    urgency: 'NORMAL',
+    faultType: 'SPARK',
+    description: '스파크 감지 빈도가 높아 필터 세척 후 재확인이 필요합니다.',
+    status: 'CLOSED',
+    dealerId: 2,
+    dealerName: '경기설비',
+    preferredVisitDatetime: '2026-02-05T14:00:00Z',
+    createdAt: now.subtract(12, 'day').toISOString(),
+    updatedAt: now.subtract(5, 'day').toISOString(),
+  },
 ];
 
 // --- 매장별 장비 옵션 ---
@@ -426,4 +465,304 @@ const mockASStoreOptions: ASStoreOption[] = [
 
 export async function mockGetASStoreOptions(): Promise<ASStoreOption[]> {
   return mockDelay(mockASStoreOptions, 200);
+}
+
+// --- 대리점 옵션 ---
+
+const mockDealerOptions: DealerOption[] = [
+  { dealerId: 1, dealerName: '서울환경테크' },
+  { dealerId: 2, dealerName: '경기설비' },
+  { dealerId: 3, dealerName: '인천환경서비스' },
+];
+
+export async function mockGetDealerOptions(): Promise<DealerOption[]> {
+  return mockDelay(mockDealerOptions, 200);
+}
+
+// --- Mock 보고서 데이터 ---
+
+const mockReports: Record<number, ASReport & { attachments: ASReportAttachment[]; result: string; remarks?: string; laborCost?: number; totalCost?: number }> = {
+  9004: {
+    reportId: 1001,
+    requestId: 9004,
+    dealerId: 1,
+    repairType: 'PART_REPLACE' as RepairType,
+    repairDescription: '팬 모터 베어링 교체 후 비정상 소음이 해결되었습니다. 내부 팬 블레이드 정렬도 함께 조정하였습니다.',
+    partsUsed: [
+      { partName: '팬 모터 베어링', unitPrice: 25000, quantity: 2 },
+      { partName: '팬 블레이드 정렬 키트', unitPrice: 15000, quantity: 1 },
+    ],
+    totalPartsCost: 65000,
+    laborCost: 80000,
+    totalCost: 145000,
+    result: 'COMPLETED',
+    remarks: '3개월 후 재점검을 권장합니다. 팬 블레이드의 마모 상태를 지속적으로 확인해주세요.',
+    createdAt: now.subtract(2, 'day').toISOString(),
+    attachments: [
+      {
+        attachmentId: 101,
+        reportId: 1001,
+        fileType: 'IMAGE',
+        filePath: '/files/as-report/9004/before.jpg',
+        fileName: '처리_전_사진.jpg',
+        uploadedAt: now.subtract(2, 'day').toISOString(),
+      },
+      {
+        attachmentId: 102,
+        reportId: 1001,
+        fileType: 'IMAGE',
+        filePath: '/files/as-report/9004/after.jpg',
+        fileName: '처리_후_사진.jpg',
+        uploadedAt: now.subtract(2, 'day').toISOString(),
+      },
+    ],
+  },
+  9007: {
+    reportId: 1002,
+    requestId: 9007,
+    dealerId: 1,
+    repairType: 'CLEANING' as RepairType,
+    repairDescription: '유입구 온도센서 주변 이물질 제거 및 방열팬 청소를 실시하였습니다. 온도가 정상 범위로 복귀하였습니다.',
+    partsUsed: [
+      { partName: '온도센서 케이블', unitPrice: 12000, quantity: 1 },
+      { partName: '방열 패드', unitPrice: 8000, quantity: 3 },
+    ],
+    totalPartsCost: 36000,
+    laborCost: 60000,
+    totalCost: 96000,
+    result: 'COMPLETED',
+    remarks: '정기적인 방열부 청소가 필요합니다.',
+    createdAt: now.subtract(3, 'day').toISOString(),
+    attachments: [
+      {
+        attachmentId: 103,
+        reportId: 1002,
+        fileType: 'IMAGE',
+        filePath: '/files/as-report/9007/before.jpg',
+        fileName: '처리_전_사진.jpg',
+        uploadedAt: now.subtract(3, 'day').toISOString(),
+      },
+    ],
+  },
+  9008: {
+    reportId: 1003,
+    requestId: 9008,
+    dealerId: 2,
+    repairType: 'FILTER_REPLACE' as RepairType,
+    repairDescription: 'ESP 필터 전체 교체 및 내부 청소를 완료하였습니다. 스파크 감지가 정상 범위로 돌아왔습니다.',
+    partsUsed: [
+      { partName: 'ESP 필터', unitPrice: 50000, quantity: 2 },
+      { partName: '파워팩 보드', unitPrice: 150000, quantity: 1 },
+    ],
+    totalPartsCost: 250000,
+    laborCost: 100000,
+    totalCost: 350000,
+    result: 'COMPLETED',
+    createdAt: now.subtract(5, 'day').toISOString(),
+    attachments: [
+      {
+        attachmentId: 104,
+        reportId: 1003,
+        fileType: 'IMAGE',
+        filePath: '/files/as-report/9008/after.jpg',
+        fileName: '처리_후_사진.jpg',
+        uploadedAt: now.subtract(5, 'day').toISOString(),
+      },
+    ],
+  },
+};
+
+// --- Mock 상세 데이터 빌더 ---
+
+function buildASDetail(requestId: number): ASDetail | null {
+  const request = mockASRequests.find((r) => r.requestId === requestId);
+  if (!request) return null;
+
+  const report = mockReports[requestId];
+
+  return {
+    requestId: request.requestId,
+    store: { storeId: request.storeId, storeName: request.storeName },
+    equipment: {
+      equipmentId: request.equipmentId ?? 0,
+      equipmentName: request.equipmentName ?? '알 수 없음',
+    },
+    urgency: request.urgency,
+    faultType: request.faultType,
+    description: request.description,
+    preferredVisitDatetime: request.preferredVisitDatetime,
+    visitScheduledDatetime:
+      request.status === 'IN_PROGRESS' || request.status === 'COMPLETED' || request.status === 'REPORT_SUBMITTED' || request.status === 'CLOSED'
+        ? request.preferredVisitDatetime
+        : undefined,
+    contactName: '이점주',
+    contactPhone: '010-4567-8901',
+    status: request.status,
+    assignedDealer: request.dealerId
+      ? { dealerId: request.dealerId, dealerName: request.dealerName ?? '알 수 없음' }
+      : undefined,
+    attachments: [
+      {
+        attachmentId: requestId * 10 + 1,
+        requestId,
+        fileType: 'IMAGE',
+        filePath: `/files/as/${requestId}/photo1.jpg`,
+        fileName: '장비_사진_1.jpg',
+        uploadedAt: request.createdAt,
+      },
+    ],
+    report: report ? {
+      reportId: report.reportId,
+      requestId: report.requestId,
+      dealerId: report.dealerId,
+      repairType: report.repairType,
+      repairDescription: report.repairDescription,
+      partsUsed: report.partsUsed,
+      totalPartsCost: report.totalPartsCost,
+      createdAt: report.createdAt,
+      attachments: report.attachments,
+    } : undefined,
+    memo: request.status === 'IN_PROGRESS' ? '현장 방문 진행 중' : undefined,
+    createdAt: request.createdAt,
+    updatedAt: request.updatedAt,
+  };
+}
+
+// A/S 상세 조회
+export async function mockGetASDetail(
+  requestId: number,
+): Promise<ApiResponse<ASDetail | null>> {
+  const detail = buildASDetail(requestId);
+  return mockDelay(wrapResponse(detail), 400);
+}
+
+// A/S 상태 변경
+export async function mockUpdateASStatus(
+  requestId: number,
+  update: ASStatusUpdateRequest,
+): Promise<ApiResponse<{ success: boolean }>> {
+  const request = mockASRequests.find((r) => r.requestId === requestId);
+  if (request) {
+    request.status = update.status;
+    request.updatedAt = new Date().toISOString();
+    if (update.dealerId) {
+      const dealer = mockDealerOptions.find((d) => d.dealerId === update.dealerId);
+      if (dealer) {
+        request.dealerId = dealer.dealerId;
+        request.dealerName = dealer.dealerName;
+      }
+    }
+  }
+  return mockDelay(wrapResponse({ success: true }), 400);
+}
+
+// 대리점 배정
+export async function mockAssignDealer(
+  requestId: number,
+  dealerId: number,
+): Promise<ApiResponse<{ success: boolean }>> {
+  const request = mockASRequests.find((r) => r.requestId === requestId);
+  if (request) {
+    const dealer = mockDealerOptions.find((d) => d.dealerId === dealerId);
+    if (dealer) {
+      request.dealerId = dealer.dealerId;
+      request.dealerName = dealer.dealerName;
+      request.status = 'ASSIGNED';
+      request.updatedAt = new Date().toISOString();
+    }
+  }
+  return mockDelay(wrapResponse({ success: true }), 400);
+}
+
+// 보고서 조회
+export async function mockGetASReport(
+  requestId: number,
+): Promise<ApiResponse<(ASReport & { attachments: ASReportAttachment[]; result: string; remarks?: string; laborCost?: number; totalCost?: number }) | null>> {
+  const report = mockReports[requestId] ?? null;
+  return mockDelay(wrapResponse(report), 400);
+}
+
+// 보고서 작성
+let nextReportId = 2000;
+
+export async function mockCreateASReport(
+  requestId: number,
+  data: ASReportCreateRequest,
+): Promise<ApiResponse<{ reportId: number }>> {
+  const reportId = nextReportId++;
+  mockReports[requestId] = {
+    reportId,
+    requestId,
+    dealerId: 1,
+    repairType: data.repairType,
+    repairDescription: data.repairDescription,
+    partsUsed: data.partsUsed,
+    totalPartsCost: data.totalPartsCost,
+    laborCost: data.laborCost,
+    totalCost: data.totalCost,
+    result: data.result,
+    remarks: data.remarks,
+    createdAt: new Date().toISOString(),
+    attachments: [],
+  };
+
+  // 상태를 REPORT_SUBMITTED로 변경
+  const request = mockASRequests.find((r) => r.requestId === requestId);
+  if (request) {
+    request.status = 'REPORT_SUBMITTED';
+    request.updatedAt = new Date().toISOString();
+  }
+
+  return mockDelay(wrapResponse({ reportId }), 500);
+}
+
+// 처리 현황 목록 조회 (필터 확장)
+export async function mockGetASStatusList(params?: {
+  status?: ASStatus;
+  urgency?: Urgency;
+  storeId?: number;
+  dealerId?: number;
+  from?: string;
+  to?: string;
+  page?: number;
+  pageSize?: number;
+}): Promise<ApiResponse<ASRequestListItem[]>> {
+  let filtered = [...mockASRequests];
+
+  if (params?.status) {
+    filtered = filtered.filter((r) => r.status === params.status);
+  }
+  if (params?.urgency) {
+    filtered = filtered.filter((r) => r.urgency === params.urgency);
+  }
+  if (params?.storeId) {
+    filtered = filtered.filter((r) => r.storeId === params.storeId);
+  }
+  if (params?.dealerId) {
+    filtered = filtered.filter((r) => r.dealerId === params.dealerId);
+  }
+  if (params?.from) {
+    const fromDate = dayjs(params.from);
+    filtered = filtered.filter(
+      (r) => dayjs(r.createdAt).isAfter(fromDate) || dayjs(r.createdAt).isSame(fromDate),
+    );
+  }
+  if (params?.to) {
+    const toDate = dayjs(params.to);
+    filtered = filtered.filter(
+      (r) => dayjs(r.createdAt).isBefore(toDate) || dayjs(r.createdAt).isSame(toDate),
+    );
+  }
+
+  filtered.sort((a, b) => dayjs(b.createdAt).valueOf() - dayjs(a.createdAt).valueOf());
+
+  const page = params?.page ?? 1;
+  const pageSize = params?.pageSize ?? 20;
+  const start = (page - 1) * pageSize;
+  const paged = filtered.slice(start, start + pageSize);
+
+  return mockDelay(
+    wrapResponse(paged, { page, pageSize, totalCount: filtered.length }),
+    400,
+  );
 }
