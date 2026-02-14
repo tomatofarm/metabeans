@@ -1,14 +1,67 @@
-import { Typography, Card } from 'antd';
+import { Tabs, Typography } from 'antd';
+import { useNavigate, useLocation, Routes, Route } from 'react-router-dom';
+import SystemPermissionTab from './SystemPermissionTab';
+import SystemApprovalTab from './SystemApprovalTab';
+import SystemUserTab from './SystemUserTab';
+import SystemThresholdTab from './SystemThresholdTab';
+
+const { Title } = Typography;
+
+function SystemTabs() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const getActiveTab = () => {
+    if (location.pathname.includes('/system/approval')) return 'approval';
+    if (location.pathname.includes('/system/users')) return 'users';
+    if (location.pathname.includes('/system/thresholds')) return 'thresholds';
+    return 'permission';
+  };
+
+  const handleTabChange = (key: string) => {
+    switch (key) {
+      case 'permission':
+        navigate('/system');
+        break;
+      case 'approval':
+        navigate('/system/approval');
+        break;
+      case 'users':
+        navigate('/system/users');
+        break;
+      case 'thresholds':
+        navigate('/system/thresholds');
+        break;
+    }
+  };
+
+  const tabItems = [
+    { key: 'permission', label: '권한 관리' },
+    { key: 'approval', label: '가입 승인' },
+    { key: 'users', label: '사용자 관리' },
+    { key: 'thresholds', label: '기준수치 관리' },
+  ];
+
+  const activeTab = getActiveTab();
+
+  return (
+    <div>
+      <Title level={4} style={{ marginBottom: 16 }}>
+        시스템 관리
+      </Title>
+      <Tabs activeKey={activeTab} onChange={handleTabChange} items={tabItems} />
+      {activeTab === 'permission' && <SystemPermissionTab />}
+      {activeTab === 'approval' && <SystemApprovalTab />}
+      {activeTab === 'users' && <SystemUserTab />}
+      {activeTab === 'thresholds' && <SystemThresholdTab />}
+    </div>
+  );
+}
 
 export default function SystemPage() {
   return (
-    <div>
-      <Typography.Title level={4}>시스템 관리</Typography.Title>
-      <Card>
-        <Typography.Text type="secondary">
-          권한, 승인, 사용자, 기준수치 관리 화면은 Phase 1 순서 12에서 구현됩니다.
-        </Typography.Text>
-      </Card>
-    </div>
+    <Routes>
+      <Route path="*" element={<SystemTabs />} />
+    </Routes>
   );
 }
